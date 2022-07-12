@@ -33,7 +33,7 @@ def test_metadata():
                     assert tag_raw in exif_raw, f"Tag {tag_raw} missing from: {fname}"
 
                 metadata = mt.compile_metadata(exif_raw, iptc_raw, xmp_raw)
-                assert len(metadata) == 10
+                assert len(metadata) == 11
                 metadata_list.append(metadata)
     assert len(metadata_list) == 5
 
