@@ -1,4 +1,4 @@
-name: Format using Black
+name: Check formatting using Black
 
 on:
   push:

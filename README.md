@@ -38,6 +38,9 @@ Tested with:
 
 ## How to Use
 
+1. Run the script
+2. The charts will be saved in the `src/plots` folder (in the parent folder of the script / beside the script)
+
 - Basic usage: Analyse all RAW images
 
   ```shell
