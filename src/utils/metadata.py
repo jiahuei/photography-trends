@@ -40,7 +40,6 @@ EXIF_EXTRA_TAGS_MAP = {
 XMP_TAGS_MAP = {
     "LensModel": "Xmp.aux.Lens",
     "CameraModel": "Xmp.tiff.Model",
-    "CreatorTool": "CreatorTool",
 }
 
 
@@ -86,7 +85,7 @@ def extract_metadata(file_path: str):
                     for d in desc:
                         metadata["CreatorTool"] = d.get("CreatorTool", metadata.get("CreatorTool"))
                 elif isinstance(desc, dict):
-                    metadata["CreatorTool"] = desc.get("CreatorTool", "NA")
+                    metadata["CreatorTool"] = desc.get("CreatorTool", metadata.get("CreatorTool"))
                 else:
                     pass
     except (PIL.UnidentifiedImageError, AssertionError):

@@ -151,10 +151,10 @@ def main(
         if "FocalLength" not in metadata:
             tqdm.write(f"Focal length data missing: {fpath}")
             continue
-        if original_only and "Photoshop" in metadata["CreatorTool"]:
+        if original_only and "adobe" in metadata["CreatorTool"].lower():
             tqdm.write(f"This seems like a processed image: {fpath}")
             continue
-        if processed_only and "Photoshop" not in metadata["CreatorTool"]:
+        if processed_only and "adobe" not in metadata["CreatorTool"].lower():
             tqdm.write(f"This seems like an unprocessed image: {fpath}")
             continue
         metadata_list.append(metadata)
