@@ -65,7 +65,6 @@ def extract_metadata(file_path: str):
         with PIL.Image.open(file_path) as img:
             try:
                 xmp2 = img.getxmp()
-                print(xmp2)
                 desc = xmp2["xmpmeta"]["RDF"]["Description"]
             except (KeyError, TypeError):
                 xmp_raw["CreatorTool"] = "NA"
