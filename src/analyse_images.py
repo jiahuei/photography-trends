@@ -30,8 +30,21 @@ sns.set_theme(
 CURR_DIR = dirname(realpath(__file__))
 
 
-def extract_array(metadata_list: list[dict], key: str, default=0.0):
-    return np.array([m.get(key, default) for m in metadata_list])
+def remove_nan(x):
+    return x[np.isfinite(x)]
+
+
+def extract_array(
+    metadata_list: list[dict],
+    key: str,
+    default=0.0,
+    dtype=None,
+    remove_nan: bool = True,
+):
+    x = np.array([m.get(key, default) for m in metadata_list], dtype=dtype)
+    if remove_nan:
+        x = remove_nan(x)
+    return x
 
 
 def plot(
@@ -69,11 +82,11 @@ def plot(
 def plot_all(metadata_list, output_name, save_memory: bool = False):
     tqdm.write(f"Plotting chart: {output_name}")
 
-    f_lens = extract_array(metadata_list, "FocalLength").astype(np.float64)
-    f_nums = extract_array(metadata_list, "FNumber").astype(np.float64)
-    lens_models = extract_array(metadata_list, "LensModel", "NA")
-    iso_nums = extract_array(metadata_list, "ISOSpeedRatings").astype(np.float64)
-    shutter_speed = extract_array(metadata_list, "ShutterSpeedValue", 16.0)
+    f_lens = extract_array(metadata_list, "FocalLength", dtype=np.float64)
+    f_nums = extract_array(metadata_list, "FNumber", dtype=np.float64)
+    lens_models = extract_array(metadata_list, "LensModel", "NA", remove_nan=False)
+    iso_nums = extract_array(metadata_list, "ISOSpeedRatings", dtype=np.float64)
+    shutter_speed = extract_array(metadata_list, "ShutterSpeedValue", 16.0, dtype=np.float64)
     assert len(f_lens) > 0
 
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=[16.0, 8.0], constrained_layout=True)
@@ -84,7 +97,7 @@ def plot_all(metadata_list, output_name, save_memory: bool = False):
     plot(f_nums, "F-stop Distribution", axes[0, 1])
 
     # ISOs
-    iso_log = np.log2(iso_nums)
+    iso_log = remove_nan(np.log2(iso_nums))
     xticks = list(range(math.floor(iso_log.min()) - 1, math.ceil(iso_log.max()) + 1))
     xticklabels = [f"{round(2.0 ** x):,d}" for x in xticks]
     plot(iso_log, "ISO Distribution", axes[0, 2], xticks=xticks, xticklabels=xticklabels)
@@ -148,7 +161,7 @@ def main(
         except Exception as e:
             tqdm.write(f"File cannot be read: {fpath}\nError: {repr(e)}")
             continue
-        if "FocalLength" not in metadata:
+        if metadata.get("FocalLength", None) is None:
             tqdm.write(f"Focal length data missing: {fpath}")
             continue
         if original_only and "adobe" in metadata["CreatorTool"].lower():

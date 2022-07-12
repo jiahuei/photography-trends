@@ -58,17 +58,12 @@ def compile_pyexiv2_metadata(exif: dict, iptc: dict, xmp: dict):
     metadata["ExposureTime"] = convert_shutter_value(metadata["ShutterSpeedValue"])
     metadata["FNumber"] = to_float(metadata["FNumber"].split("/"))
     metadata["FocalLength"] = to_float(metadata["FocalLength"].split("/"))
-    try:
-        metadata["DateTimeOriginal"] = datetime.strptime(
-            metadata["DateTimeOriginal"], "%Y:%m:%d %H:%M:%S"
-        )
-    except (KeyError, ValueError):
-        metadata["DateTimeOriginal"] = datetime.min
+    metadata["DateTimeOriginal"] = convert_datetime(metadata["DateTimeOriginal"])
     return metadata
 
 
 def extract_metadata(file_path: str):
-    metadata = {}
+    metadata = {"FilePath": file_path}
     try:
         with PIL.Image.open(file_path) as img:
             exif = img.getexif().get_ifd(0x8769)
@@ -88,6 +83,7 @@ def extract_metadata(file_path: str):
                     metadata["CreatorTool"] = desc.get("CreatorTool", metadata.get("CreatorTool"))
                 else:
                     pass
+        metadata["DateTimeOriginal"] = convert_datetime(metadata["DateTimeOriginal"])
     except (PIL.UnidentifiedImageError, AssertionError):
         pass
     else:
@@ -101,6 +97,14 @@ def extract_metadata(file_path: str):
     except (RuntimeError, AssertionError):
         pass
     return metadata
+
+
+def convert_datetime(x: str):
+    try:
+        x = datetime.strptime(x, "%Y:%m:%d %H:%M:%S")
+    except (KeyError, ValueError):
+        x = datetime.min
+    return x
 
 
 def convert_shutter_value(x: float, thousand_sep: bool = False):
