@@ -12,6 +12,7 @@ Tested with:
 - Canon RAW
 - Fujifilm RAW
 - Nikon RAW
+- Sony RAW
 
 ## How to Install
 
