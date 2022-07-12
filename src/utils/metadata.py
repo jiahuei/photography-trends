@@ -90,6 +90,8 @@ def extract_metadata(file_path: str):
                     pass
     except (PIL.UnidentifiedImageError, AssertionError):
         pass
+    else:
+        return metadata
     try:
         with pyexiv2.Image(str(file_path)) as img:
             exif_raw = img.read_exif()
