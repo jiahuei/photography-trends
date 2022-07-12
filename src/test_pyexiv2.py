@@ -35,7 +35,7 @@ def test_metadata():
                 for tag_raw in mt.EXIF_TAGS_MAP.values():
                     assert tag_raw in exif_raw, f"Tag {tag_raw} missing from: {fname}"
 
-                metadata = mt.compile_metadata(exif_raw, iptc_raw, xmp_raw)
+                metadata = mt.compile_pyexiv2_metadata(exif_raw, iptc_raw, xmp_raw)
                 assert len(metadata) == 13
                 metadata_dict[fname] = metadata
     assert len(metadata_dict) == 9

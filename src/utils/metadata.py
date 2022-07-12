@@ -6,9 +6,20 @@ from typing import Any
 import numpy as np
 import PIL
 import pyexiv2
-from PIL import TiffImagePlugin
+from PIL import ExifTags, TiffImagePlugin
 
 pyexiv2.enableBMFF()
+
+PIL_EXIF_TAGS = [
+    "DateTimeOriginal",
+    "ExposureTime",
+    "ShutterSpeedValue",
+    "FNumber",
+    "FocalLength",
+    "ISOSpeedRatings",
+    "LensModel",
+    "CameraModel",
+]
 
 EXIF_TAGS_MAP = {
     "DateTimeOriginal": "Exif.Photo.DateTimeOriginal",
@@ -33,7 +44,7 @@ XMP_TAGS_MAP = {
 }
 
 
-def compile_metadata(exif: dict, iptc: dict, xmp: dict):
+def compile_pyexiv2_metadata(exif: dict, iptc: dict, xmp: dict):
     metadata = {}
     for tag, tag_raw in EXIF_TAGS_MAP.items():
         metadata[tag] = exif[tag_raw]
@@ -58,30 +69,37 @@ def compile_metadata(exif: dict, iptc: dict, xmp: dict):
 
 
 def extract_metadata(file_path: str):
-    with pyexiv2.Image(str(file_path)) as img:
-        exif_raw = img.read_exif()
-        iptc_raw = img.read_iptc()
-        xmp_raw = img.read_xmp()
-
-    xmp_raw["CreatorTool"] = "NA"
+    metadata = {}
     try:
         with PIL.Image.open(file_path) as img:
+            exif = img.getexif().get_ifd(0x8769)
+            exif = {ExifTags.TAGS.get(tag_id, tag_id): exif.get(tag_id) for tag_id in exif}
+            metadata.update({tag: to_float(exif.get(tag)) for tag in PIL_EXIF_TAGS})
+            metadata["CreatorTool"] = "NA"
             try:
                 xmp2 = img.getxmp()
                 desc = xmp2["xmpmeta"]["RDF"]["Description"]
             except (KeyError, TypeError):
-                xmp_raw["CreatorTool"] = "NA"
+                pass
             else:
                 if isinstance(desc, list):
                     for d in desc:
-                        xmp_raw["CreatorTool"] = d.get("CreatorTool", xmp_raw.get("CreatorTool"))
+                        metadata["CreatorTool"] = d.get("CreatorTool", metadata.get("CreatorTool"))
                 elif isinstance(desc, dict):
-                    xmp_raw["CreatorTool"] = desc.get("CreatorTool", "NA")
+                    metadata["CreatorTool"] = desc.get("CreatorTool", "NA")
                 else:
-                    xmp_raw["CreatorTool"] = "NA"
-    except PIL.UnidentifiedImageError:
+                    pass
+    except (PIL.UnidentifiedImageError, AssertionError):
         pass
-    return compile_metadata(exif_raw, iptc_raw, xmp_raw)
+    try:
+        with pyexiv2.Image(str(file_path)) as img:
+            exif_raw = img.read_exif()
+            iptc_raw = img.read_iptc()
+            xmp_raw = img.read_xmp()
+        metadata.update(compile_pyexiv2_metadata(exif_raw, iptc_raw, xmp_raw))
+    except (RuntimeError, AssertionError):
+        pass
+    return metadata
 
 
 def convert_shutter_value(x: float, thousand_sep: bool = False):
@@ -100,7 +118,7 @@ def to_float(x: Any):
         else:
             x = x.numerator / x.denominator
     elif isinstance(x, (tuple, list)):
-        assert len(x) == 2
+        assert len(x) == 2, f"`to_float()` input must be len 2, received: {x}"
         x = tuple(map(float, x))
         if x[1] == 0:
             x = x[0] / 1e-3

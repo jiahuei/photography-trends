@@ -143,14 +143,18 @@ def main(
 
     metadata_list = []
     for fpath in tqdm(img_files, "Reading EXIF data"):
-        metadata = mt.extract_metadata(fpath)
+        try:
+            metadata = mt.extract_metadata(fpath)
+        except Exception as e:
+            tqdm.write(f"File cannot be read: {fpath}\nError: {repr(e)}")
+            continue
         if "FocalLength" not in metadata:
             tqdm.write(f"Focal length data missing: {fpath}")
             continue
-        if original_only and metadata["CreatorTool"] != "NA":
+        if original_only and "Photoshop" in metadata["CreatorTool"]:
             tqdm.write(f"This seems like a processed image: {fpath}")
             continue
-        if processed_only and metadata["CreatorTool"] in ("NA", "Unknown"):
+        if processed_only and "Photoshop" not in metadata["CreatorTool"]:
             tqdm.write(f"This seems like an unprocessed image: {fpath}")
             continue
         metadata_list.append(metadata)
