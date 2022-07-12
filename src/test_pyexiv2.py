@@ -7,6 +7,7 @@ from pathlib import Path
 import pyexiv2
 
 from utils import io
+from utils import metadata as mt
 
 CURR_DIR = Path(realpath(__file__)).parent
 pyexiv2.enableBMFF()
@@ -28,10 +29,10 @@ def test_metadata():
                 assert isinstance(iptc_raw, dict)
                 assert isinstance(xmp_raw, dict)
 
-                for tag_raw in io.EXIF_TAGS_MAP.values():
+                for tag_raw in mt.EXIF_TAGS_MAP.values():
                     assert tag_raw in exif_raw, f"Tag {tag_raw} missing from: {fname}"
 
-                metadata = io.compile_metadata(exif_raw, iptc_raw, xmp_raw)
+                metadata = mt.compile_metadata(exif_raw, iptc_raw, xmp_raw)
                 assert len(metadata) == 10
                 metadata_list.append(metadata)
     assert len(metadata_list) == 5
