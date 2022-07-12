@@ -14,6 +14,12 @@ Tested with:
 - Nikon RAW
 - Sony RAW
 
+Tested on (via GitHub Actions):
+
+- Windows
+- Ubuntu
+- macOS
+
 ## How to Install
 
 1. Create a Anaconda environment (replace `py38` below with any name that you like)
