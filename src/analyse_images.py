@@ -97,29 +97,15 @@ def plot_all(metadata_list, output_name, save_memory: bool = False):
     plot(iso_nums, "ISO Distribution", axes[0, 2], xticks=xticks, xticklabels=xticklabels)
 
     # Exposure times
-    def _norm_ss(x):
-        if x > 0:
-            return f"1/{int(1.0 / (2.0 ** (-x))):,d}"
-        else:
-            return f"{int(2.0 ** (-x)):,d}"
-
     if not save_memory:
         ss_max = int(shutter_speed.max() + 1)
         ss_min = int(shutter_speed.min() - 1)
         xticks = list(range(ss_min, ss_max))
-        xticklabels = [_norm_ss(x) for x in xticks]
+        xticklabels = [mt.convert_shutter_value(x, True) for x in xticks]
         plot(
             shutter_speed,
             "Shutter Speed Distribution",
             axes[1, 0],
-            xticks=xticks,
-            xticklabels=xticklabels,
-        )
-        xticklabels = [str(x) for x in xticks]
-        plot(
-            shutter_speed,
-            "Shutter Speed < -log2(t) > Distribution",
-            axes[1, 1],
             xticks=xticks,
             xticklabels=xticklabels,
         )

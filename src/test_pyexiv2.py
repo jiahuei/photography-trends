@@ -13,7 +13,7 @@ CURR_DIR = Path(realpath(__file__)).parent
 
 
 def test_metadata():
-    metadata_list = []
+    metadata_dict = {}
     for root, _, files in os.walk(CURR_DIR / "test_data", topdown=False):
         root = Path(root)
         for fname in sorted(files):
@@ -32,9 +32,31 @@ def test_metadata():
                     assert tag_raw in exif_raw, f"Tag {tag_raw} missing from: {fname}"
 
                 metadata = mt.compile_metadata(exif_raw, iptc_raw, xmp_raw)
-                assert len(metadata) == 11
-                metadata_list.append(metadata)
-    assert len(metadata_list) == 5
+                # assert len(metadata) == 11
+                metadata_dict[fname] = metadata
+    assert len(metadata_dict) == 7
+
+    ref_metadata_list = io.read_json(CURR_DIR / "test_data" / "metadata.json")
+    for fname, metadata in metadata_dict.items():
+        ref_metadata = ref_metadata_list[fname]
+        for tag in ref_metadata.keys():
+            if tag == "URL":
+                continue
+            if tag == "FocalLength":
+                assert str(round(metadata[tag])) == ref_metadata[tag]
+            elif tag == "FNumber":
+                assert f"{metadata[tag]:.1f}" == ref_metadata[tag]
+            elif tag == "ExposureTime":
+                if "/" in metadata[tag]:
+                    assert metadata[tag][:-2] == ref_metadata[tag][:-2]
+                else:
+                    assert metadata[tag][:2] == ref_metadata[tag][:2]
+                print(metadata[tag][:-2], ref_metadata[tag][:-2])
+            else:
+                assert metadata[tag] == ref_metadata[tag], (
+                    f"Tag `{tag}` mismatch: "
+                    f"metadata={metadata[tag]}   ref_metadata={ref_metadata[tag]}"
+                )
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+import numpy as np
 import PIL
 import pyexiv2
 from PIL import TiffImagePlugin
@@ -11,14 +12,14 @@ pyexiv2.enableBMFF()
 
 EXIF_TAGS_MAP = {
     "DateTimeOriginal": "Exif.Photo.DateTimeOriginal",
-    "ExposureTime": "Exif.Photo.ExposureTime",
-    "ShutterSpeedValue": "Exif.Photo.ShutterSpeedValue",
+    "ExposureTimeRaw": "Exif.Photo.ExposureTime",
     "FNumber": "Exif.Photo.FNumber",
     "FocalLength": "Exif.Photo.FocalLength",
     "ISOSpeedRatings": "Exif.Photo.ISOSpeedRatings",
 }
 
 EXIF_EXTRA_TAGS_MAP = {
+    "ShutterSpeedValueRaw": "Exif.Photo.ShutterSpeedValue",
     "LensModel": "Exif.Photo.LensModel",
     "CameraModel": "Exif.Image.Model",
     "Width": "Exif.Photo.PixelXDimension",
@@ -42,7 +43,9 @@ def compile_metadata(exif: dict, iptc: dict, xmp: dict):
             EXIF_EXTRA_TAGS_MAP.get(tag, None),
             xmp.get(XMP_TAGS_MAP.get(tag, None), "NA"),
         )
-    metadata["ShutterSpeedValue"] = to_float(metadata["ShutterSpeedValue"].split("/"))
+    et = tuple(map(float, metadata["ExposureTimeRaw"].split("/")))
+    metadata["ShutterSpeedValue"] = np.log2(et[1] / et[0])
+    metadata["ExposureTime"] = convert_shutter_value(metadata["ShutterSpeedValue"])
     metadata["FNumber"] = to_float(metadata["FNumber"].split("/"))
     metadata["FocalLength"] = to_float(metadata["FocalLength"].split("/"))
     try:
@@ -79,6 +82,15 @@ def extract_metadata(file_path: str):
     except PIL.UnidentifiedImageError:
         pass
     return compile_metadata(exif_raw, iptc_raw, xmp_raw)
+
+
+def convert_shutter_value(x: float, thousand_sep: bool = False):
+    if x > 0:
+        x = round(1.0 / (2.0 ** (-x)))
+        return f"1/{x:,d}" if thousand_sep else f"1/{x:d}"
+    else:
+        x = round(2.0 ** (-x))
+        return f"{x:,d}" if thousand_sep else str(x)
 
 
 def to_float(x: Any):
