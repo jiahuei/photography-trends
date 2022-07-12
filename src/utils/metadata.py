@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import string
 from datetime import datetime
 from typing import Any
 
@@ -9,6 +10,7 @@ import pyexiv2
 from PIL import ExifTags, TiffImagePlugin
 
 pyexiv2.enableBMFF()
+ASCII_LOWERCASE = set(string.ascii_lowercase)
 
 PIL_EXIF_TAGS = [
     "DateTimeOriginal",
@@ -59,6 +61,8 @@ def compile_pyexiv2_metadata(exif: dict, iptc: dict, xmp: dict):
     metadata["FNumber"] = to_float(metadata["FNumber"].split("/"))
     metadata["FocalLength"] = to_float(metadata["FocalLength"].split("/"))
     metadata["DateTimeOriginal"] = convert_datetime(metadata["DateTimeOriginal"])
+    metadata["LensModel"] = cleanup_name(metadata.get("LensModel", "NA"))
+    metadata["CameraModel"] = cleanup_name(metadata.get("CameraModel", "NA"))
     return metadata
 
 
@@ -84,6 +88,8 @@ def extract_metadata(file_path: str):
                 else:
                     pass
         metadata["DateTimeOriginal"] = convert_datetime(metadata["DateTimeOriginal"])
+        metadata["LensModel"] = cleanup_name(metadata.get("LensModel", "NA"))
+        metadata["CameraModel"] = cleanup_name(metadata.get("CameraModel", "NA"))
     except (PIL.UnidentifiedImageError, AssertionError):
         pass
     else:
@@ -99,7 +105,7 @@ def extract_metadata(file_path: str):
     return metadata
 
 
-def convert_datetime(x: str):
+def convert_datetime(x: str) -> datetime:
     try:
         x = datetime.strptime(x, "%Y:%m:%d %H:%M:%S")
     except (KeyError, ValueError):
@@ -107,7 +113,7 @@ def convert_datetime(x: str):
     return x
 
 
-def convert_shutter_value(x: float, thousand_sep: bool = False):
+def convert_shutter_value(x: float, thousand_sep: bool = False) -> str:
     if x > 0:
         x = round(1.0 / (2.0 ** (-x)))
         return f"1/{x:,d}" if thousand_sep else f"1/{x:d}"
@@ -116,7 +122,16 @@ def convert_shutter_value(x: float, thousand_sep: bool = False):
         return f"{x:,d}" if thousand_sep else str(x)
 
 
-def to_float(x: Any):
+def cleanup_name(x: str | None) -> str:
+    if x is None:
+        x = "NA"
+    x = x.encode("ascii", errors="ignore").decode()
+    if not any(c in ASCII_LOWERCASE for c in x.lower()):
+        x = "NA"
+    return x
+
+
+def to_float(x: Any) -> Any:
     if isinstance(x, TiffImagePlugin.IFDRational):
         if x.denominator == 0:
             x = x.numerator / 1e-3
@@ -132,6 +147,6 @@ def to_float(x: Any):
     return x
 
 
-def print_exif_data(exif_data: dict):
+def print_exif_data(exif_data: dict) -> None:
     for tag, content in exif_data.items():
         print(f"{tag:25}: {content}")
