@@ -1,4 +1,4 @@
-name: Lint using Black
+name: Format using Black
 
 on:
   push:
