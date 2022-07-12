@@ -6,6 +6,7 @@ Created on 04 July 2022
 from __future__ import annotations
 
 import argparse
+import math
 import os
 from os.path import dirname, join, realpath
 
@@ -41,13 +42,6 @@ def plot(
     xticklabels=None,
     **plot_kwargs,
 ):
-    try:
-        stddev, mean = np.std(data), np.mean(data)
-    except TypeError:
-        pass
-    else:
-        if stddev < 2.0:
-            plot_kwargs["binrange"] = plot_kwargs.get("binrange", [int(mean - 3), int(mean + 3)])
     ax = sns.histplot(data, ax=ax, **plot_kwargs)
     ax.set_title(title, pad=plt.rcParams["font.size"] * 1.5)
 
@@ -90,16 +84,15 @@ def plot_all(metadata_list, output_name, save_memory: bool = False):
     plot(f_nums, "F-stop Distribution", axes[0, 1])
 
     # ISOs
-    interval = 200
-    iso_max = ((iso_nums.max() // interval) + 1) * interval
-    xticks = list(range(0, int(iso_max), interval))
-    xticklabels = [f"{x:,d}" for x in xticks]
-    plot(iso_nums, "ISO Distribution", axes[0, 2], xticks=xticks, xticklabels=xticklabels)
+    iso_log = np.log2(iso_nums)
+    xticks = list(range(math.floor(iso_log.min()) - 1, math.ceil(iso_log.max()) + 1))
+    xticklabels = [f"{round(2.0 ** x):,d}" for x in xticks]
+    plot(iso_log, "ISO Distribution", axes[0, 2], xticks=xticks, xticklabels=xticklabels)
 
     # Exposure times
     if not save_memory:
-        ss_max = int(shutter_speed.max() + 1)
-        ss_min = int(shutter_speed.min() - 1)
+        ss_max = math.ceil(shutter_speed.max()) + 1
+        ss_min = math.floor(shutter_speed.min()) - 1
         xticks = list(range(ss_min, ss_max))
         xticklabels = [mt.convert_shutter_value(x, True) for x in xticks]
         plot(
