@@ -66,8 +66,8 @@ Tested on (via GitHub Actions):
   ```shell
   $ cd src
   $ python analyse_images.py -j -d <directory_to_analyse>   # Analyse all JPEGs
-  $ python analyse_images.py -j -oo -d <directory_to_analyse>   # Analyse all unprocessed JPEGs
-  $ python analyse_images.py -j -po -d <directory_to_analyse>   # Analyse all processed JPEGs
+  $ python analyse_images.py -j -oo -d <directory_to_analyse>   # Analyse JPEGs not processed using Adobe software
+  $ python analyse_images.py -j -po -d <directory_to_analyse>   # Analyse JPEGs processed using Adobe software
   $ python analyse_images.py -j -po -m -d <directory_to_analyse>   # Analyse all processed JPEGs, memory saving
   ```
 
