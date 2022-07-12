@@ -6,6 +6,13 @@
 
 This is a simple script to collect statistics of your photographs and plots charts that showcase the trends and data.
 
+Tested with:
+
+- JPEGs
+- Canon RAW
+- Fujifilm RAW
+- Nikon RAW
+
 ## How to Install
 
 1. Create a Anaconda environment (replace `py38` below with any name that you like)
@@ -44,14 +51,14 @@ This is a simple script to collect statistics of your photographs and plots char
   $ python analyse_images.py -m -d <directory_to_analyse>
   ```
 
-- Advanced usage: Analyse all JPG images
+- Advanced usage: Analyse all JPEG images
 
   ```shell
   $ cd src
-  $ python analyse_images.py -j -d <directory_to_analyse>   # Analyse all JPGs
-  $ python analyse_images.py -j -oo -d <directory_to_analyse>   # Analyse all unprocessed JPGs
-  $ python analyse_images.py -j -po -d <directory_to_analyse>   # Analyse all processed JPGs
-  $ python analyse_images.py -j -po -m -d <directory_to_analyse>   # Analyse all processed JPGs, memory saving
+  $ python analyse_images.py -j -d <directory_to_analyse>   # Analyse all JPEGs
+  $ python analyse_images.py -j -oo -d <directory_to_analyse>   # Analyse all unprocessed JPEGs
+  $ python analyse_images.py -j -po -d <directory_to_analyse>   # Analyse all processed JPEGs
+  $ python analyse_images.py -j -po -m -d <directory_to_analyse>   # Analyse all processed JPEGs, memory saving
   ```
 
 ## Example Charts
