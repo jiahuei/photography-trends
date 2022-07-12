@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info
+.pytest_cache
+.ipynb_checkpoints
+
+# CUDA files
+*.cu.o
+*.so
+
+# Cython files
+*.o
+
+# Temporary folders & files
+/tests/tmp/
+/tests/*/*.zip
+**/tmp
+
+# pytest-cov
+**/.coverage*
+/junit
+/htmlcov
+/coverage.xml
+
+# pip
+**/build/
+
+# Docs
+/docs/source/generated/
+
+# PyCharm
+.idea/
+
+# OS
+thumbs.db
+.DS_Store

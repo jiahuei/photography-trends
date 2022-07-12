@@ -1,0 +1,65 @@
+# See https://gitlab.liris.cnrs.fr/pagoda/tools/mkdocs_template/-/blob/master/user_config/pyproject.toml
+
+# -----------------------------------------------------------------------------
+# Pytest configuration
+# https://docs.pytest.org/en/latest/customize.html?highlight=pyproject#pyproject-toml
+[tool.pytest.ini_options]
+log_cli = true
+# log_cli_level = "DEBUG"
+addopts = "--cov=src --cov=deploy --doctest-modules"
+testpaths = [
+    "tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:tensorflow.*",
+    "ignore::DeprecationWarning:tensorboard.*",
+    "ignore::DeprecationWarning:matplotlib.*",
+]
+
+# -----------------------------------------------------------------------------
+# Black (Option-less formatter) configuration
+# https://black.readthedocs.io/en/stable/index.html
+[tool.black]
+line-length = 99
+target-version = ["py38"]
+include = '\.pyi?$|\.ipynb'
+
+# -----------------------------------------------------------------------------
+# For sorting imports
+# This is used by VS Code to sort imports
+# https://code.visualstudio.com/docs/python/editing#_sort-imports
+# https://timothycrosley.github.io/isort/
+[tool.isort]
+  # Profile
+  # Base profile type to use for configuration. Profiles include: black, django,
+  # pycharm, google, open_stack, plone, attrs, hug. As well as any shared profiles.
+  # Default: ``
+profile = "black"
+  # Treat project as a git repository and ignore files listed in .gitignore
+  # Default: `False`
+skip_gitignore = true
+  # The max length of an import line (used for wrapping long imports).
+  # Default: `79`
+line_length = 99
+
+# -----------------------------------------------------------------------------
+# # https://pydantic-docs.helpmanual.io/mypy_plugin/#configuring-the-plugin
+# [tool.mypy]
+# plugins = [
+#     "pydantic.mypy"
+# ]
+# follow_imports = "silent"
+# warn_redundant_casts = true
+# warn_unused_ignores = true
+# disallow_any_generics = true
+# check_untyped_defs = true
+# no_implicit_reexport = true
+# # for strict mypy: Disallows defining functions without type annotations or with incomplete type annotations.
+# # https://mypy.readthedocs.io/en/stable/config_file.html#confval-disallow_untyped_defs
+# disallow_untyped_defs = false
+# 
+# [tool.pydantic-mypy]
+# init_forbid_extra = true
+# init_typed = true
+# warn_required_dynamic_aliases = true
+# warn_untyped_fields = true
