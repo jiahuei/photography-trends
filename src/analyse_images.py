@@ -171,16 +171,22 @@ def main(
     mt.print_exif_data(metadata_list[0])
 
     # Plot combined
-    plot_all(metadata_list, "Photo Trend - All", save_memory)
+    try:
+        plot_all(metadata_list, "Photo Trend - All", save_memory)
+    except Exception as e:
+        tqdm.write(f"Failed to plot: {repr(e)}")
 
     # Per year
     years = set([m["DateTimeOriginal"].year for m in metadata_list])
     for year in sorted(years):
-        plot_all(
-            [m for m in metadata_list if m["DateTimeOriginal"].year == year],
-            f"Photo Trend - {year:04d}",
-            save_memory,
-        )
+        try:
+            plot_all(
+                [m for m in metadata_list if m["DateTimeOriginal"].year == year],
+                f"Photo Trend - {year:04d}",
+                save_memory,
+            )
+        except Exception as e:
+            tqdm.write(f"Failed to plot: {repr(e)}")
 
 
 def parse_args() -> argparse.Namespace:
