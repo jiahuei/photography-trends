@@ -76,7 +76,7 @@ def plot_all(metadata_list, output_name, save_memory: bool = False):
     shutter_speed = extract_array(metadata_list, "ShutterSpeedValue", 16.0)
     assert len(f_lens) > 0
 
-    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=[16.0, 8.0])
+    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=[16.0, 8.0], constrained_layout=True)
     # Focal lengths
     plot(f_lens, "Focal Length Distribution", axes[0, 0])
 
@@ -106,7 +106,8 @@ def plot_all(metadata_list, output_name, save_memory: bool = False):
     # Lens models
     plot(lens_models, "Lens Model Distribution", axes[1, 2])
 
-    plt.tight_layout(pad=0.5)
+    fig.suptitle(output_name, fontsize="large")
+
     os.makedirs(join(CURR_DIR, "plots"), exist_ok=True)
     plt.savefig(join(CURR_DIR, "plots", output_name), dpi=600)  # , plt.show()
     plt.clf()
@@ -156,15 +157,14 @@ def main(
     mt.print_exif_data(metadata_list[0])
 
     # Plot combined
-    plot_all(metadata_list, "img trend - all", save_memory)
+    plot_all(metadata_list, "Photo Trend - All", save_memory)
 
-    # if not save_memory:
     # Per year
     years = set([m["DateTimeOriginal"].year for m in metadata_list])
     for year in sorted(years):
         plot_all(
             [m for m in metadata_list if m["DateTimeOriginal"].year == year],
-            f"img trend - {year:04d}",
+            f"Photo Trend - {year:04d}",
             save_memory,
         )
 
