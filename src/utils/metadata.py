@@ -7,6 +7,8 @@ import PIL
 import pyexiv2
 from PIL import TiffImagePlugin
 
+pyexiv2.enableBMFF()
+
 EXIF_TAGS_MAP = {
     "DateTimeOriginal": "Exif.Photo.DateTimeOriginal",
     "ExposureTime": "Exif.Photo.ExposureTime",
@@ -41,10 +43,14 @@ def compile_metadata(exif: dict, iptc: dict, xmp: dict):
             xmp.get(XMP_TAGS_MAP.get(tag, None), "NA"),
         )
     metadata["ShutterSpeedValue"] = to_float(metadata["ShutterSpeedValue"].split("/"))
+    metadata["FNumber"] = to_float(metadata["FNumber"].split("/"))
+    metadata["FocalLength"] = to_float(metadata["FocalLength"].split("/"))
     try:
-        exif["DateTimeOriginal"] = datetime.strptime(exif["DateTimeOriginal"], "%Y:%m:%d %H:%M:%S")
+        metadata["DateTimeOriginal"] = datetime.strptime(
+            metadata["DateTimeOriginal"], "%Y:%m:%d %H:%M:%S"
+        )
     except (KeyError, ValueError):
-        exif["DateTimeOriginal"] = datetime.min
+        metadata["DateTimeOriginal"] = datetime.min
     return metadata
 
 
@@ -59,6 +65,7 @@ def extract_metadata(file_path: str):
         with PIL.Image.open(file_path) as img:
             try:
                 xmp2 = img.getxmp()
+                print(xmp2)
                 desc = xmp2["xmpmeta"]["RDF"]["Description"]
             except (KeyError, TypeError):
                 xmp_raw["CreatorTool"] = "NA"

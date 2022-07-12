@@ -10,7 +10,6 @@ from utils import io
 from utils import metadata as mt
 
 CURR_DIR = Path(realpath(__file__)).parent
-pyexiv2.enableBMFF()
 
 
 def test_metadata():
