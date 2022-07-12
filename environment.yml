@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+  - defaults
+  - nvidia
+
+dependencies:
+  - pip
+  - setuptools
+  - wheel
+  - exiv2~=0.27.5
+  - pip:
+      - -r requirements.txt
