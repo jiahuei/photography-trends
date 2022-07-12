@@ -14,5 +14,5 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --verbose --diff"
-          src: "./src ./scripts"
+          src: "./src"
           version: "22.3.0"
