@@ -30,7 +30,7 @@ sns.set_theme(
 CURR_DIR = dirname(realpath(__file__))
 
 
-def remove_nan(x):
+def arr_remove_nan(x):
     return x[np.isfinite(x)]
 
 
@@ -43,7 +43,7 @@ def extract_array(
 ):
     x = np.array([m.get(key, default) for m in metadata_list], dtype=dtype)
     if remove_nan:
-        x = remove_nan(x)
+        x = arr_remove_nan(x)
     return x
 
 
@@ -97,7 +97,7 @@ def plot_all(metadata_list, output_name, save_memory: bool = False):
     plot(f_nums, "F-stop Distribution", axes[0, 1])
 
     # ISOs
-    iso_log = remove_nan(np.log2(iso_nums))
+    iso_log = arr_remove_nan(np.log2(iso_nums))
     xticks = list(range(math.floor(iso_log.min()) - 1, math.ceil(iso_log.max()) + 1))
     xticklabels = [f"{round(2.0 ** x):,d}" for x in xticks]
     plot(iso_log, "ISO Distribution", axes[0, 2], xticks=xticks, xticklabels=xticklabels)
