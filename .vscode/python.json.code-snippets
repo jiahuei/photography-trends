@@ -1,0 +1,60 @@
+{
+  "MAIN_IF_GUARD": {
+    "prefix": "mm",
+    "body": ["if __name__ == \"__main__\":", "    $0"]
+  },
+  "TF_GRAPH_BOILERPLATE": {
+    "prefix": "tgg",
+    "body": [
+      "g = tf.Graph()",
+      "with g.as_default():",
+      "    tf.compat.v1.set_random_seed(0)",
+      "    init_fn = tf.global_variables_initializer()",
+      "",
+      "gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.5)",
+      "sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_options), graph=g)",
+      "",
+      "with sess:",
+      "    sess.run(init_fn)",
+      "    g.finalize()",
+      "    $0"
+    ]
+  },
+  "TF_WARNING_SUPPRESS": {
+    "prefix": "tww",
+    "body": ["os.environ[\"TF_CPP_MIN_LOG_LEVEL\"] = \"1\"", "tf.get_logger().setLevel(\"ERROR\")", "$0"]
+  },
+  "CUDA_VISIBLE_DEVICES": {
+    "prefix": "cuda",
+    "body": ["os.environ[\"CUDA_DEVICE_ORDER\"] = \"PCI_BUS_ID\"", "os.environ[\"CUDA_VISIBLE_DEVICES\"] = \"$0\""]
+  },
+  "TYPING_IMPORTS": {
+    "prefix": "typ",
+    "body": ["from __future__ import annotations"]
+  },
+  "GET_LOGGER": {
+    "prefix": "lgg",
+    "body": ["logger = logging.getLogger(__name__)"]
+  },
+  "CURRENT_DIRECTORY": {
+    "prefix": "cdd",
+    "body": ["from os.path import dirname, realpath", "CURR_DIR = dirname(realpath(__file__))"]
+  },
+  "TESTS_DIRECTORY": {
+    "prefix": "tdd",
+    "body": [
+      "try:",
+      "    from paths import TEST_DIRPATH  # When running as script",
+      "except ImportError:",
+      "    from .paths import TEST_DIRPATH  # When running via pytest"
+    ]
+  },
+  "RAISE_TYPE_ERROR": {
+    "prefix": "raisetype",
+    "body": ["if not isinstance($0, ):", "    raise TypeError(f\"`` must be , received: {type()}\")"]
+  },
+  "RAISE_VALUE_ERROR": {
+    "prefix": "raisevalue",
+    "body": ["if $0:", "    raise ValueError(f\", received: {}\")"]
+  }
+}
