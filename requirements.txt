@@ -1,6 +1,6 @@
 matplotlib
 numpy
 Pillow
-py3exiv2
+pyexiv2
 seaborn
 tqdm
