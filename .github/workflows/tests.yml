@@ -34,3 +34,8 @@ jobs:
           conda install pytest
           cd src
           pytest
+      - name: Run scripts
+        shell: bash -l {0}
+        run: |
+          cd src
+          python analyse_images.py -d test_data
